@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>iBOY Sampler: a Video.js v10 skin you can sew</title>
+    <meta
+      name="description"
+      content="iBOY Sampler is a Video.js v10 skin made like a garment. The paused frame is re-stitched in cross-stitch, the seek bar is a seam sewn as loud as the sound, and the controls are rivets and buttons on denim."
+    />
+    <meta name="theme-color" content="#ebe2cd" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Poppins:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#player">Skip to the player</a>
+
+    <header class="bar">
+      <a class="brand" href="#top" aria-label="iBOY Sampler, back to top">iBOY SAMPLER</a>
+      <nav aria-label="Sections">
+        <a href="#player">Try it</a>
+        <a href="#stitches">The stitches</a>
+        <a href="#sizes">Sizes</a>
+        <a href="#access">Access</a>
+        <a href="#use">Use it</a>
+      </nav>
+    </header>
+
+    <main class="page" id="top">
+      <header class="head">
+        <p class="label">A VIDEO.JS V10 SKIN</p>
+        <h1 class="visually-hidden">Sampler</h1>
+        <canvas id="title" class="title" aria-hidden="true"></canvas>
+        <p class="lede">
+          A player you can sew. Pause the film and a needle stitches the frame back in as cross-stitch. Play it and a
+          machine sews a seam, every stitch as tall as the sound was loud.
+        </p>
+      </header>
+
+      <section class="stage" aria-label="Video player">
+        <div id="player" class="stage-player"></div>
+
+        <div class="picks">
+          <fieldset>
+            <legend class="label">FOOTAGE</legend>
+            <div id="footage-picks" class="chips"></div>
+          </fieldset>
+          <fieldset>
+            <legend class="label">FABRIC</legend>
+            <div id="theme-picks" class="chips"></div>
+          </fieldset>
+        </div>
+        <p class="hint">Press play, then pause. Drag the needle along the seam. Try other footage and other fabrics.</p>
+      </section>
+
+      <section class="notes" id="stitches" aria-label="The stitches">
+        <article>
+          <p class="label">01 CROSS-STITCH</p>
+          <h2>The frame is re-stitched</h2>
+          <p>
+            Pause, and a needle sews the frozen frame back in, one cross at a time, in 36 thread colours on aida cloth.
+            Cells close to the cloth are left bare, as a stitcher would. The poster before play is a finished sampler,
+            and pressing play unpicks it.
+          </p>
+        </article>
+        <article>
+          <p class="label">02 ZIGZAG</p>
+          <h2>The seam is the sound</h2>
+          <p>
+            The seek bar is a chalked line. As the film plays, a zigzag is sewn along it, and each stitch is as tall as
+            that moment was loud. Nothing is pre-analysed, and the audio is only read, never rerouted.
+          </p>
+        </article>
+        <article>
+          <p class="label">03 RIVET AND BUTTON</p>
+          <h2>Play is a rivet</h2>
+          <p>
+            Play is a domed copper rivet. Every other control is a sewn button, and the icons are redrawn as running
+            stitches, so even the line art is made of thread.
+          </p>
+        </article>
+        <article>
+          <p class="label">04 TOPSTITCH</p>
+          <h2>Denim you can read on</h2>
+          <p>
+            The controls sit on a denim panel with double gold topstitching, so they stay legible over any footage. The
+            title is a leather patch, the time is a typewritten care label, and tooltips are hang tags.
+          </p>
+        </article>
+      </section>
+
+      <section class="made" aria-label="Where it was made">
+        <p class="label">MADE IN TIRUPPUR</p>
+        <p class="made-text">
+          iBOY's studio is in Tiruppur, Tamil Nadu, a town built on knitwear. Sampler borrows its workshop.
+        </p>
+      </section>
+
+      <section class="sizes" id="sizes" aria-label="Player sizes">
+        <p class="label">SIZES</p>
+        <h2>One garment, every width</h2>
+        <p class="sub">
+          The controls follow the width of the player itself, not the window. Narrow players drop the title and the cast
+          and picture-in-picture buttons, hand the centre cluster over to the panel, and keep every button thumb sized.
+        </p>
+        <div class="size-row">
+          <figure>
+            <div id="size-tablet" class="size-player" style="--w: 440px"></div>
+            <figcaption>440 PX</figcaption>
+          </figure>
+          <figure>
+            <div id="size-phone" class="size-player" style="--w: 300px"></div>
+            <figcaption>300 PX</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="access" id="access" aria-label="Accessibility">
+        <p class="label">ACCESS</p>
+        <h2>Made for everyone</h2>
+        <ul class="facts">
+          <li>
+            <h3>Readable over any footage</h3>
+            <p>Controls sit on a solid denim panel, never on the picture. Light text on Indigo denim is above 10 to 1.</p>
+          </li>
+          <li>
+            <h3>Keyboard first</h3>
+            <p>Every control is reachable in visual order, with a thick gold focus ring. The shortcuts are below.</p>
+          </li>
+          <li>
+            <h3>Thumb sized</h3>
+            <p>Buttons are 44 px on touch screens and never smaller than 40 px elsewhere.</p>
+          </li>
+          <li>
+            <h3>Calm on request</h3>
+            <p>
+              With reduced motion on, the needle does not travel: the frame appears stitched, and the seam redraws only a
+              few times a second.
+            </p>
+          </li>
+          <li>
+            <h3>Forced colours and contrast</h3>
+            <p>High contrast and forced colours modes swap the fabric for solid system colours.</p>
+          </li>
+          <li>
+            <h3>Never blocks playback</h3>
+            <p>
+              The seam reads a copy of the audio and never routes it. If a browser or file cannot provide one, an even
+              seam is sewn instead.
+            </p>
+          </li>
+        </ul>
+
+        <p class="label keys-label">KEYBOARD</p>
+        <ul class="keys">
+          <li><kbd>Space</kbd> or <kbd>K</kbd> play and pause</li>
+          <li><kbd>J</kbd> <kbd>L</kbd> or <kbd>←</kbd> <kbd>→</kbd> seek</li>
+          <li><kbd>↑</kbd> <kbd>↓</kbd> volume</li>
+          <li><kbd>M</kbd> mute</li>
+          <li><kbd>F</kbd> fullscreen</li>
+          <li><kbd>C</kbd> captions</li>
+          <li><kbd>I</kbd> picture in picture</li>
+          <li><kbd>0</kbd> to <kbd>9</kbd> jump to a point</li>
+        </ul>
+      </section>
+
+      <section class="use" id="use" aria-label="Use the skin">
+        <p class="label">USE IT</p>
+        <h2>Open source, Apache 2.0</h2>
+        <p class="sub">
+          Sampler is an ejected Video.js v10 HTML skin: markup, one stylesheet and two small custom elements. It takes
+          the same public properties as the packaged skins.
+        </p>
+        <dl class="props">
+          <dt><code>data-sampler-theme</code></dt>
+          <dd>indigo, black, stone or canvas</dd>
+          <dt><code>--media-accent-color</code></dt>
+          <dd>thread colour, default gold #e8a33d</dd>
+          <dt><code>--media-border-radius</code></dt>
+          <dd>player corners, default 20px</dd>
+          <dt><code>--media-font-family</code></dt>
+          <dd>interface font, default Poppins</dd>
+        </dl>
+      </section>
+
+      <footer class="foot">
+        <p>Built by iBOY Innovation Hub for the Video.js Skins Design Challenge.</p>
+        <p><a href="https://www.iboyhub.com">www.iboyhub.com</a></p>
+        <p class="credit">
+          Footage: the Mux sample film for the first example, and iBOY's own clips for the others. Fonts: Poppins and
+          Courier Prime, SIL Open Font License.
+        </p>
+      </footer>
+    </main>
+    <script type="module" src="/src/showcase/main.ts"></script>
+  </body>
+</html>

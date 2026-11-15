@@ -1,0 +1,921 @@
+/*
+ * iBOY Sampler: a Video.js v10 skin you can sew.
+ *
+ * The idea is garment work. The paused frame is re-stitched as a cross-stitch on aida cloth. The seek bar is a seam
+ * that a machine sews as the film plays, each zigzag as tall as the sound was loud. The controls live on a denim panel
+ * with gold topstitching: sewn buttons, a copper rivet for play, a leather patch for the title and a typewritten care
+ * label for the time.
+ *
+ * Public properties (the same names as the packaged skins):
+ *   --media-accent-color        thread colour, default gold #e8a33d
+ *   --media-accent-text-color   text on the thread, default #1b1204
+ *   --media-border-radius       player corner radius, default 20px
+ *   --media-font-family         interface font, default Poppins
+ *   data-sampler-theme          indigo, black, stone or canvas
+ *
+ * Written inside the components layer after the scaffold rules, so it restyles them without !important fights.
+ */
+@layer components {
+  .media-skin[data-theme="scaffold"][data-preset="video"] {
+    /* ---------- Colourway tokens (Indigo is the default) ---------- */
+    --sm-denim: #223158;
+    --sm-denim-deep: #151f3a;
+    --sm-fg: #f3ecda;
+    --sm-fg-rgb: 243 236 218;
+    --sm-thread-default: #e8a33d;
+    --sm-thread-ink-default: #1b1204;
+    --sm-thread: var(--media-accent-color, var(--sm-thread-default));
+    --sm-thread-ink: var(--media-accent-text-color, var(--sm-thread-ink-default));
+    --sm-ring: var(--sm-thread);
+    --sm-cloth: #ebe2cd;
+    --sm-hole: #8a7d62;
+    --sm-chalk: #e9e4d6;
+    --sm-button: #efe6cf;
+    --sm-button-edge: #c9bb97;
+    --sm-button-ink: #1d2744;
+    --sm-leather: #a8703f;
+    --sm-leather-deep: #6b4222;
+    --sm-leather-ink: #2a1608;
+    --sm-copper: #d98a52;
+    --sm-copper-deep: #8f4a22;
+    --sm-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --sm-label-font: "Courier Prime", "Courier New", ui-monospace, monospace;
+    --sm-weave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85 .05' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+    --media-background: var(--sm-denim);
+    --media-foreground: var(--sm-fg);
+    --media-accent: var(--sm-thread);
+    --media-accent-foreground: var(--sm-thread-ink);
+    --media-popover: var(--sm-denim-deep);
+    --media-popover-foreground: var(--sm-fg);
+    --media-ring: var(--sm-ring);
+    --media-muted: #33426e;
+    --media-button-highlight: transparent;
+    --media-video-border-radius: var(--media-border-radius, 20px);
+    --media-font-family: Poppins, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    background-color: #0e0e10;
+    font-weight: 400;
+
+    /* ---------- The stitched picture ---------- */
+    & .stitch-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: block;
+      pointer-events: none;
+    }
+
+    & .stitch-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* The picture is carried by the stitches now, so the old scrim has nothing left to do. */
+    & .video-controls-backdrop {
+      display: none;
+    }
+
+    /* ---------- Sewn buttons ---------- */
+    & .media-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: var(--sm-button-ink);
+      background:
+        radial-gradient(circle at 35% 28%, rgb(255 255 255 / 0.55), transparent 52%),
+        radial-gradient(circle at 50% 50%, var(--sm-button) 62%, var(--sm-button-edge) 100%);
+      box-shadow:
+        inset 0 -2px 3px rgb(80 60 20 / 0.35),
+        inset 0 1px 1px rgb(255 255 255 / 0.7),
+        0 2px 3px rgb(0 0 0 / 0.45);
+      isolation: isolate;
+      transition:
+        transform 0.35s var(--sm-ease),
+        box-shadow 0.35s var(--sm-ease),
+        filter 0.35s var(--sm-ease);
+    }
+
+    /* The rim groove of a button, with a stitch running round it. */
+    & .media-button::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      z-index: -1;
+      border-radius: 50%;
+      border: 1.5px dashed rgb(29 39 68 / 0.45);
+      pointer-events: none;
+    }
+
+    @media (hover: hover) {
+      & .media-button:hover {
+        background:
+          radial-gradient(circle at 35% 28%, rgb(255 255 255 / 0.65), transparent 52%),
+          radial-gradient(circle at 50% 50%, #fbf3dc 62%, var(--sm-button-edge) 100%);
+        transform: translateY(-1px);
+        filter: saturate(1.1);
+      }
+    }
+
+    & .media-button:active {
+      transform: translateY(1px) scale(0.95);
+      box-shadow:
+        inset 0 2px 4px rgb(80 60 20 / 0.45),
+        0 0 0 rgb(0 0 0 / 0);
+    }
+
+    & .media-button:focus-visible {
+      outline: 3px solid var(--sm-ring);
+      outline-offset: 3px;
+    }
+
+    & .media-button[aria-expanded="true"] {
+      background:
+        radial-gradient(circle at 35% 28%, rgb(255 255 255 / 0.35), transparent 52%),
+        radial-gradient(circle at 50% 50%, var(--sm-thread) 62%, var(--sm-copper-deep) 130%);
+      color: var(--sm-thread-ink);
+    }
+
+    & .media-button:disabled,
+    & .media-button[aria-disabled="true"] {
+      filter: grayscale(0.7);
+      opacity: 0.5;
+    }
+
+    & .media-button-icon,
+    & .media-button-icon-base {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Icons are redrawn as running stitches: the line art keeps its shape, but its stroke is a row of thread. */
+    & media-icon svg path,
+    & media-icon svg circle,
+    & media-icon svg rect {
+      stroke-dasharray: 2.3 1.5;
+      stroke-linecap: round;
+    }
+
+    & media-icon svg [stroke="currentColor"] {
+      stroke-width: 1.7;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      & .media-button {
+        transition: none;
+      }
+    }
+
+    /* ---------- Top bar ---------- */
+    & .video-controls-top {
+      padding: 12px;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    /* The title sits on a leather patch, debossed. */
+    & .media-title {
+      flex: 0 1 auto;
+      margin-inline-end: auto;
+      display: flex;
+      align-items: center;
+      height: 38px;
+      max-width: min(70%, 26rem);
+      padding-inline: 18px;
+      border-radius: 6px;
+      position: relative;
+      background:
+        var(--sm-weave),
+        linear-gradient(180deg, var(--sm-leather), var(--sm-leather-deep));
+      background-blend-mode: soft-light, normal;
+      box-shadow:
+        0 2px 5px rgb(0 0 0 / 0.5),
+        inset 0 1px 0 rgb(255 255 255 / 0.25),
+        inset 0 -2px 3px rgb(0 0 0 / 0.3);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sm-leather-ink);
+      text-shadow: 0 1px 0 rgb(255 255 255 / 0.28);
+    }
+
+    & .media-title::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1.5px dashed rgb(42 22 8 / 0.6);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    & .media-title:empty {
+      display: none;
+    }
+
+    /* ---------- Centre controls ---------- */
+    & .video-controls-center {
+      gap: 16px;
+    }
+
+    & .video-controls-center-button {
+      width: 56px !important;
+      height: 56px !important;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 28%, rgb(255 255 255 / 0.55), transparent 52%),
+        radial-gradient(circle at 50% 50%, var(--sm-button) 62%, var(--sm-button-edge) 100%) !important;
+      color: var(--sm-button-ink);
+      border: 0;
+    }
+
+    & .video-controls-center-button:hover,
+    & .video-controls-center-button:focus-visible,
+    & .video-controls-center-button[aria-expanded="true"] {
+      background:
+        radial-gradient(circle at 35% 28%, rgb(255 255 255 / 0.65), transparent 52%),
+        radial-gradient(circle at 50% 50%, #fbf3dc 62%, var(--sm-button-edge) 100%) !important;
+    }
+
+    /* Play: a copper rivet, domed, with a ring of gold topstitch round its seat. */
+    & .video-controls-center-play {
+      width: 96px !important;
+      height: 96px !important;
+      color: #3a1c0b;
+      background:
+        radial-gradient(circle at 34% 26%, rgb(255 238 214 / 0.85), transparent 46%),
+        radial-gradient(circle at 50% 50%, var(--sm-copper) 58%, var(--sm-copper-deep) 100%) !important;
+      box-shadow:
+        inset 0 -4px 6px rgb(60 25 5 / 0.55),
+        inset 0 2px 2px rgb(255 235 210 / 0.7),
+        0 0 0 6px var(--sm-denim),
+        0 0 0 8px rgb(0 0 0 / 0.35),
+        0 8px 18px rgb(0 0 0 / 0.55);
+    }
+
+    & .video-controls-center-play::after {
+      inset: 12px;
+      border: 2px solid rgb(60 25 5 / 0.45);
+    }
+
+    & .video-controls-center-play:hover,
+    & .video-controls-center-play:focus-visible {
+      background:
+        radial-gradient(circle at 34% 26%, rgb(255 244 228 / 0.95), transparent 46%),
+        radial-gradient(circle at 50% 50%, #e69a62 58%, var(--sm-copper-deep) 100%) !important;
+    }
+
+    & .video-controls-center-play-icon {
+      width: 40px !important;
+      height: 40px !important;
+    }
+
+    & .video-controls-center-play-icon svg [stroke="currentColor"] {
+      stroke-width: 2;
+    }
+
+    & .video-controls-center-seek {
+      width: 52px !important;
+      height: 52px !important;
+    }
+
+    & .video-controls-center-seek-icon {
+      width: 22px;
+      height: 22px;
+    }
+
+    @container media-root (width < 30rem) {
+      & .video-controls-center-play {
+        width: 72px !important;
+        height: 72px !important;
+        box-shadow:
+          inset 0 -3px 5px rgb(60 25 5 / 0.55),
+          inset 0 2px 2px rgb(255 235 210 / 0.7),
+          0 0 0 4px var(--sm-denim),
+          0 6px 12px rgb(0 0 0 / 0.55);
+      }
+
+      & .video-controls-center-play::after {
+        inset: 9px;
+      }
+
+      & .video-controls-center-play-icon {
+        width: 32px !important;
+        height: 32px !important;
+      }
+    }
+
+    /* ---------- Denim panel ---------- */
+    & .video-controls-bottom {
+      inset-inline: 12px;
+      bottom: 12px;
+      padding: 18px 20px 12px;
+      gap: 6px;
+      border-radius: 16px;
+      isolation: isolate;
+      background:
+        var(--sm-weave),
+        repeating-linear-gradient(115deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 4px),
+        linear-gradient(180deg, var(--sm-denim), var(--sm-denim-deep));
+      background-blend-mode: soft-light, normal, normal;
+      box-shadow:
+        0 14px 28px rgb(0 0 0 / 0.5),
+        inset 0 1px 0 rgb(255 255 255 / 0.12);
+    }
+
+    /* Double topstitch: two dashed rows of gold thread just inside the edge. */
+    & .video-controls-bottom::before,
+    & .video-controls-bottom::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      border-radius: 11px;
+      pointer-events: none;
+    }
+
+    & .video-controls-bottom::before {
+      inset: 5px;
+      border: 2px dashed var(--sm-thread);
+      opacity: 0.95;
+    }
+
+    & .video-controls-bottom::after {
+      inset: 10px;
+      border: 1.5px dashed var(--sm-thread);
+      opacity: 0.45;
+      border-radius: 7px;
+    }
+
+    @container media-root (width < 30rem) {
+      & .video-controls-bottom {
+        inset-inline: 8px;
+        bottom: 8px;
+        padding: 14px 14px 8px;
+      }
+
+      & .video-controls-bottom::before {
+        inset: 4px;
+      }
+
+      & .video-controls-bottom::after {
+        display: none;
+      }
+    }
+
+    & .video-controls-row {
+      gap: 8px;
+    }
+
+    & .video-controls-group {
+      gap: 6px;
+    }
+
+    /* Play in the panel: a smaller rivet. */
+    & .video-controls-start .media-play-button {
+      width: 48px;
+      height: 48px;
+      color: #3a1c0b;
+      background:
+        radial-gradient(circle at 34% 26%, rgb(255 238 214 / 0.85), transparent 46%),
+        radial-gradient(circle at 50% 50%, var(--sm-copper) 58%, var(--sm-copper-deep) 100%);
+      box-shadow:
+        inset 0 -3px 4px rgb(60 25 5 / 0.55),
+        inset 0 2px 2px rgb(255 235 210 / 0.7),
+        0 2px 4px rgb(0 0 0 / 0.5);
+    }
+
+    & .video-controls-start .media-play-button::after {
+      border-color: rgb(60 25 5 / 0.4);
+    }
+
+    /* ---------- The care label ---------- */
+    & .media-time-group {
+      height: 32px;
+      gap: 6px;
+      padding-inline: 12px;
+      border-radius: 3px;
+      position: relative;
+      font-family: var(--sm-label-font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #1b1b1b;
+      background: linear-gradient(180deg, #fbf7ec, #e8e0c9);
+      box-shadow:
+        0 2px 3px rgb(0 0 0 / 0.45),
+        inset 0 0 0 1px rgb(0 0 0 / 0.08);
+    }
+
+    & .media-time-group::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border: 1px dashed rgb(0 0 0 / 0.35);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    & .media-time-duration-value,
+    & .media-time-separator {
+      opacity: 0.6;
+    }
+
+    & .media-time-toggle {
+      border-radius: 4px;
+      min-height: 32px;
+    }
+
+    /* ---------- The seam ---------- */
+    & .video-controls-slider-row {
+      padding-inline: 4px;
+    }
+
+    & .media-time-slider {
+      height: 36px;
+    }
+
+    & .media-time-slider-track {
+      inset-inline: 0;
+      top: 50%;
+      height: 28px;
+      translate: 0 -50%;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    & .media-time-slider-track::before,
+    & .media-time-slider-fill {
+      display: none;
+    }
+
+    /* Buffered: a fine chalk line under the guide, so how far ahead the cloth is laid can still be read. */
+    & .media-time-slider-buffer {
+      inset-block: auto;
+      top: 50%;
+      bottom: auto;
+      left: 0;
+      right: auto;
+      width: var(--media-slider-buffer, 0%);
+      height: 2px;
+      translate: 0 -50%;
+      clip-path: none;
+      background: rgb(var(--sm-fg-rgb) / 0.28);
+      border-radius: 1px;
+    }
+
+    & .seam {
+      position: absolute;
+      inset: 0;
+      display: block;
+      pointer-events: none;
+    }
+
+    & .seam-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* The playhead is the needle, tilted as if it is mid-stitch, with its eye at the tail. */
+    & .media-time-slider-thumb {
+      top: 50%;
+      width: 40px;
+      height: 12px;
+      border: 0;
+      border-radius: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 12'%3E%3Cpath d='M2 6h31l5 0' stroke='%23d9dde2' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M30 4.4L39 6 30 7.6z' fill='%23eef0f3'/%3E%3Cellipse cx='6.5' cy='6' rx='2.4' ry='1.2' fill='%23596069'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+      filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.55));
+      transform: translate(-50%, -50%) rotate(-32deg);
+      transition: transform 0.35s var(--sm-ease);
+    }
+
+    /* A generous touch target around the slim needle. */
+    & .media-time-slider-thumb::before {
+      content: "";
+      position: absolute;
+      inset: -14px -6px;
+    }
+
+    & .media-time-slider[data-dragging] .media-time-slider-thumb,
+    & .media-time-slider:hover .media-time-slider-thumb {
+      transform: translate(-50%, -50%) rotate(-42deg) scale(1.15);
+    }
+
+    & .media-time-slider-thumb:focus-visible {
+      outline: 3px solid var(--sm-ring);
+      outline-offset: 6px;
+      border-radius: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      & .media-time-slider-thumb {
+        transition: none;
+      }
+    }
+
+    /* Hover and scrub preview: a hang tag. */
+    & .media-time-slider-preview {
+      bottom: calc(100% + 14px);
+    }
+
+    & .media-time-slider-preview-meta {
+      width: auto;
+      padding: 5px 12px 5px 22px;
+      position: relative;
+      background: linear-gradient(180deg, #fbf7ec, #e8e0c9);
+      border-radius: 4px;
+      box-shadow: 0 3px 6px rgb(0 0 0 / 0.5);
+      color: #1b1b1b;
+    }
+
+    & .media-time-slider-preview-meta::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      translate: 0 -50%;
+      border-radius: 50%;
+      background: var(--sm-denim-deep);
+      box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.6);
+    }
+
+    & .media-time-slider-value {
+      font-family: var(--sm-label-font);
+      font-size: 13px;
+      font-weight: 700;
+      color: #1b1b1b;
+    }
+
+    & .media-time-slider-chapter-title {
+      font-size: 12px;
+      color: #1b1b1b;
+      opacity: 0.8;
+    }
+
+    & .media-slider-thumbnail {
+      border-radius: 6px;
+      border: 3px solid #fbf7ec;
+      box-shadow: 0 3px 8px rgb(0 0 0 / 0.5);
+    }
+
+    /* ---------- Volume: a vertical running stitch ---------- */
+    & .media-volume-popover-popup {
+      width: 56px;
+      height: 150px;
+      padding: 18px 20px;
+      border-radius: 14px;
+      isolation: isolate;
+      background:
+        var(--sm-weave),
+        linear-gradient(180deg, var(--sm-denim), var(--sm-denim-deep));
+      background-blend-mode: soft-light, normal;
+      box-shadow: 0 10px 22px rgb(0 0 0 / 0.5);
+    }
+
+    & .media-volume-popover-popup::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      z-index: -1;
+      border: 1.5px dashed var(--sm-thread);
+      border-radius: 10px;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    & .media-volume-slider-track {
+      width: 4px;
+      background: repeating-linear-gradient(to top, rgb(var(--sm-fg-rgb) / 0.4) 0 5px, transparent 5px 9px);
+      overflow: visible;
+    }
+
+    & .media-volume-slider-fill {
+      width: 4px;
+      background: repeating-linear-gradient(to top, var(--sm-thread) 0 5px, transparent 5px 9px);
+    }
+
+    & .media-volume-slider-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 28%, rgb(255 255 255 / 0.6), transparent 52%),
+        radial-gradient(circle at 50% 50%, var(--sm-button) 62%, var(--sm-button-edge) 100%);
+      box-shadow: 0 2px 3px rgb(0 0 0 / 0.5);
+    }
+
+    & .media-volume-slider-thumb:focus-visible {
+      outline: 3px solid var(--sm-ring);
+      outline-offset: 4px;
+    }
+
+    /* ---------- Menus, tags, dialogs, indicators ---------- */
+    & .media-menu-popup {
+      min-width: 224px;
+      border-radius: 14px;
+      isolation: isolate;
+      background:
+        var(--sm-weave),
+        linear-gradient(180deg, var(--sm-denim), var(--sm-denim-deep));
+      background-blend-mode: soft-light, normal;
+      box-shadow: 0 12px 26px rgb(0 0 0 / 0.55);
+    }
+
+    & .media-menu-popup::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      z-index: -1;
+      border: 1.5px dashed var(--sm-thread);
+      border-radius: 10px;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    & .media-menu-content {
+      padding: 10px;
+      gap: 4px !important;
+    }
+
+    & .media-menu-item,
+    & .media-menu-back-item,
+    & .media-menu-radio-item {
+      min-height: 44px;
+      border-radius: 8px;
+      background-color: transparent;
+      font-size: 13px;
+    }
+
+    & .media-menu-item[data-highlighted],
+    & .media-menu-back-item[data-highlighted],
+    & .media-menu-radio-item[data-highlighted] {
+      background-color: rgb(var(--sm-fg-rgb) / 0.12);
+      box-shadow: inset 0 0 0 1px rgb(var(--sm-fg-rgb) / 0.22);
+    }
+
+    & .media-menu-item:focus-visible,
+    & .media-menu-back-item:focus-visible,
+    & .media-menu-radio-item:focus-visible {
+      outline: 2px solid var(--sm-ring);
+      outline-offset: -2px;
+    }
+
+    & .media-menu-radio-icon,
+    & .media-menu-trigger-icon,
+    & .media-menu-forward-chevron,
+    & .media-menu-back-chevron {
+      width: 20px;
+      height: 20px;
+    }
+
+    & .media-menu-radio-icon {
+      color: var(--sm-thread);
+      opacity: 1;
+    }
+
+    & .media-menu-badge {
+      border-radius: 4px;
+      font-family: var(--sm-label-font);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Tooltips are paper hang tags. */
+    & .media-tooltip-popup {
+      padding: 6px 12px 6px 22px;
+      position: relative;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #fbf7ec, #e8e0c9);
+      color: #1b1b1b;
+      font-size: 12px;
+      box-shadow: 0 3px 6px rgb(0 0 0 / 0.5);
+    }
+
+    & .media-tooltip-popup::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      translate: 0 -50%;
+      border-radius: 50%;
+      background: var(--sm-denim-deep);
+      box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.6);
+    }
+
+    & .media-tooltip-shortcut {
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: var(--sm-label-font);
+      font-weight: 700;
+      background-color: rgb(0 0 0 / 0.12);
+    }
+
+    & .media-dialog-backdrop {
+      background-color: rgb(14 14 16 / 0.86);
+    }
+
+    & .media-dialog-popup {
+      padding: 24px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fbf7ec, #e8e0c9);
+      color: #1b1b1b;
+      box-shadow: 0 12px 30px rgb(0 0 0 / 0.6);
+    }
+
+    & .media-dialog-title {
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    & .media-dialog-close {
+      border-radius: 8px;
+      border: 1.5px dashed #1b1b1b !important;
+      color: #1b1b1b;
+      padding-inline: 20px;
+    }
+
+    & .media-indicator {
+      padding: 6px 14px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #fbf7ec, #e8e0c9);
+      color: #1b1b1b;
+      box-shadow: 0 3px 6px rgb(0 0 0 / 0.5);
+      font-family: var(--sm-label-font);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    & .media-volume-indicator-icon,
+    & .media-status-indicator-icon,
+    & .media-seek-indicator-icon {
+      width: 22px;
+      height: 22px;
+    }
+
+    & .media-buffering-indicator-spinner-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--sm-thread);
+    }
+
+    /* ---------- Compact players ---------- */
+    @container media-root (width < 30rem) {
+      & .video-controls-top {
+        padding: 8px;
+      }
+
+      & .video-controls-top .media-title,
+      & .video-controls-top .media-airplay-button,
+      & .video-controls-top .media-cast-button,
+      & .video-controls-top .media-pip-button {
+        display: none;
+      }
+
+      & .video-controls-content[data-started] .video-controls-center {
+        display: none;
+      }
+
+      & .media-button {
+        width: 40px;
+        height: 40px;
+      }
+
+      & .video-controls-start .media-play-button {
+        width: 42px;
+        height: 42px;
+      }
+
+      & .media-time-group {
+        height: 28px;
+        padding-inline: 8px;
+        font-size: 12px;
+      }
+
+      & .media-time-slider {
+        height: 30px;
+      }
+
+      & .media-time-slider-track {
+        height: 22px;
+      }
+    }
+
+    /* ---------- Touch: every target at least 44px ---------- */
+    @media (pointer: coarse) {
+      & .media-button {
+        width: 44px;
+        height: 44px;
+      }
+
+      & .video-controls-start .media-play-button {
+        width: 48px;
+        height: 48px;
+      }
+
+      & .media-time-slider {
+        height: 40px;
+      }
+
+      & .media-volume-popover-popup {
+        height: 170px;
+      }
+    }
+
+    /* ---------- Higher contrast and forced colours ---------- */
+    @media (prefers-contrast: more) {
+      & .video-controls-bottom,
+      & .media-menu-popup,
+      & .media-volume-popover-popup {
+        background: var(--sm-denim-deep);
+        border: 2px solid var(--sm-fg);
+      }
+
+      & .media-title {
+        background: var(--sm-leather-deep);
+        color: #fff;
+        text-shadow: none;
+      }
+    }
+
+    @media (forced-colors: active) {
+      & .media-button,
+      & .video-controls-center-button,
+      & .video-controls-center-play,
+      & .video-controls-start .media-play-button {
+        forced-color-adjust: none;
+        background: ButtonFace !important;
+        color: ButtonText;
+        border: 1px solid ButtonText;
+        box-shadow: none;
+      }
+
+      & .video-controls-bottom,
+      & .media-menu-popup,
+      & .media-volume-popover-popup,
+      & .media-title,
+      & .media-time-group {
+        forced-color-adjust: none;
+        background: Canvas;
+        color: CanvasText;
+        border: 1px solid CanvasText;
+      }
+
+      & .media-time-slider-thumb {
+        forced-color-adjust: none;
+        background: Highlight;
+        border-radius: 3px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  /*
+   * ---------- Colourways ----------
+   * Four ways to wear the same garment. Each only changes tokens, so every state restyles together.
+   */
+  .media-skin[data-theme="scaffold"][data-preset="video"][data-sampler-theme="black"] {
+    --sm-denim: #19191c;
+    --sm-denim-deep: #0e0e10;
+    --sm-thread-default: #25f07a;
+    --sm-thread-ink-default: #04170b;
+    --sm-cloth: #1d1d21;
+    --sm-hole: #5a5a60;
+    --sm-chalk: #c8c8cc;
+    --media-muted: #2a2a2e;
+  }
+
+  .media-skin[data-theme="scaffold"][data-preset="video"][data-sampler-theme="stone"] {
+    --sm-denim: #7c9bbb;
+    --sm-denim-deep: #5d7d9f;
+    --sm-fg: #0c1a2c;
+    --sm-fg-rgb: 12 26 44;
+    --sm-thread-default: #c93a24;
+    --sm-thread-ink-default: #fff4ee;
+    --sm-ring: #0c1a2c;
+    --sm-cloth: #f2eee3;
+    --sm-hole: #9c927a;
+    --sm-chalk: #fdfbf4;
+    --media-muted: #4f6e8f;
+  }
+
+  .media-skin[data-theme="scaffold"][data-preset="video"][data-sampler-theme="canvas"] {
+    --sm-denim: #d9cdae;
+    --sm-denim-deep: #bfb08d;
+    --sm-fg: #26210f;
+    --sm-fg-rgb: 38 33 15;
+    --sm-thread-default: #1f3f8f;
+    --sm-thread-ink-default: #f6f3ea;
+    --sm-ring: #1f3f8f;
+    --sm-cloth: #f6f3ea;
+    --sm-hole: #a69b7d;
+    --sm-chalk: #fffdf6;
+    --media-muted: #a89b78;
+  }
+}
